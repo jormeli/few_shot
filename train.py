@@ -22,9 +22,12 @@ def train(batch_size=64,
          val_split=0.2,
          data_root='./data',
          csv_file='./train_top20.csv'):
+    """Create model, run training and save checkpoints."""
+
     transform = transforms.Compose([Rescale((224, 224)),
                                     ToTensor(),
                                     Normalize(
+                                        # Mean and STD for pretrained model
                                         mean=[0.485, 0.456, 0.406],
                                         std=[0.229, 0.224, 0.225]
                                     )])
@@ -33,6 +36,7 @@ def train(batch_size=64,
                              root_dir=data_root,
                              transform=transform)
 
+    # Split data into train/val sets
     val_set_len = math.floor(len(dataset) * val_split)
     train_set, val_set = torch.utils.data.random_split(
             dataset,
@@ -55,20 +59,22 @@ def train(batch_size=64,
     model = model.to(device)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = Adam(model.parameters(), lr=lr)
+
     for epoch in range(1, num_epochs + 1):
         print('Epoch {}/{}'.format(epoch, num_epochs))
+
+        # Run train and val for each epoch
         for phase in ['train', 'val']:
             avg_loss = 0.
             accuracy = 0
-
 
             if phase == 'train':
                 model.train()
             else:
                 model.eval()
 
+            # Don't show progress bar for validation
             wrapper = tqdm if phase == 'train' else lambda x: x
-
             for batch in wrapper(dataloaders[phase]):
                 imgs = batch['image'].to(device)
                 labels = batch['label'].to(device)
@@ -100,6 +106,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', help='Configuration file')
     args = parser.parse_args()
+
+    # Load configuration file if specified
     if args.config:
         gin.parse_config_file(args.config)
 

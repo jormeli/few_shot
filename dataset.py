@@ -11,10 +11,10 @@ class FashionDataset(Dataset):
     def __init__(self, csv_file, classes_file, root_dir, transform=None):
         """
         Args:
-            csv_file (str):
+            csv_file (str): CSV containing the labels
             classes_file (str): Path to a file containing all class names
             root_dir (str): Root directory of the dataset
-            transform:
+            transform: Transform that should be applied to the data
         """
 
         self._csv_file = csv_file
@@ -24,6 +24,8 @@ class FashionDataset(Dataset):
         self._data = np.genfromtxt(csv_file, delimiter=',', skip_header=1,
                                    usecols=(0,4), dtype=None)
 
+        # Some images are not found in the dataset for some reason,
+        # so remove corresponding rows
         for idx in reversed(range(self._data.shape[0])):
             image = self._data[idx][0]
             if not path.exists(path.join(self._root_dir,
@@ -45,10 +47,15 @@ class FashionDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        img_file = path.join(self._root_dir, 'images', '{}.jpg'.format(self._data[idx][0]))
+        img_file = path.join(self._root_dir,
+                             'images',
+                             '{}.jpg'.format(self._data[idx][0]))
         img = io.imread(img_file)
+
+        # Some images are greyscale
         if len(img.shape) == 2:
             img = np.repeat(img[:, :, None], 3, axis=-1)
+
         label = self._labels.index(self._data[idx][1].decode('ascii'))
         label = np.array(label)
 
@@ -87,6 +94,7 @@ class Normalize(object):
 
 class Rescale(object):
     """Rescale the image in a sample to a given size.
+    Adapted from https://pytorch.org/tutorials/beginner/data_loading_tutorial.html#transforms
 
     Args:
         output_size (tuple or int): Desired output size. If tuple, output is
