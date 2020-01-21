@@ -28,14 +28,14 @@ echo "$HEADER" > $OUT_DIR/test.csv
 
 tail -n +2 $CSV_IN | awk -F ',' '{ print $5 }' | sort | uniq > $OUT_DIR/classes.txt
 
-tail -n +2 $CSV_IN | awk -F ',' '($8 %2 == 0)' > $OUT_DIR/train.csv
+tail -n +2 $CSV_IN | awk -F ',' '($8 %2 == 0)' > $OUT_DIR/train_temp.csv
 tail -n +2 $CSV_IN | awk -F ',' '($8 %2 == 1)' >> $OUT_DIR/test.csv
 
 echo "$HEADER" > $OUT_DIR/train_top20.csv
 echo "$HEADER" > $OUT_DIR/train_other.csv
-grep -f ./top_20_classes.txt -- $OUT_DIR/train.csv >> $OUT_DIR/train_top20.csv
-grep -f ./top_20_classes.txt -v -- $OUT_DIR/train.csv >> $OUT_DIR/train_other.csv
+grep -f ./top_20_classes.txt -- $OUT_DIR/train_temp.csv >> $OUT_DIR/train_top20.csv
+grep -f ./top_20_classes.txt -v -- $OUT_DIR/train_temp.csv >> $OUT_DIR/train_other.csv
 
-rm $OUT_DIR/train.csv
+rm $OUT_DIR/train_temp.csv
 
 echo "Done"
