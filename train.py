@@ -1,7 +1,9 @@
 import argparse
+from datetime import datetime
 import math
 import os
 from os import path
+from shutil import copyfile
 import sys
 
 import gin
@@ -15,13 +17,14 @@ from tqdm import tqdm
 from dataset import FashionDataset, Rescale, ToTensor, Normalize
 
 @gin.configurable
-def train(batch_size=64,
-         num_epochs=10,
-         lr=1e-4,
-         save_every=1,
-         val_split=0.2,
-         data_root='./data',
-         csv_file='./train_top20.csv'):
+def train(experiment_dir,
+          batch_size=64,
+          num_epochs=10,
+          lr=1e-4,
+          save_every=1,
+          val_split=0.2,
+          data_root='./data',
+          csv_file='./train_top20.csv'):
     """Create model, run training and save checkpoints."""
 
     transform = transforms.Compose([Rescale((224, 224)),
@@ -47,10 +50,10 @@ def train(batch_size=64,
     model.fc = nn.Linear(2048, dataset.num_classes)
 
     train_loader = DataLoader(train_set, batch_size=batch_size,
-                              shuffle=True, num_workers=4)
+                              shuffle=True, num_workers=12)
 
     val_loader = DataLoader(val_set, batch_size=batch_size,
-                            shuffle=True, num_workers=4)
+                            shuffle=True, num_workers=12)
 
     dataloaders = {'train': train_loader, 'val': val_loader}
     datasets = {'train': train_set, 'val': val_set}
@@ -109,7 +112,7 @@ def train(batch_size=64,
                 loss_history.append(epoch_loss)
 
                 # Write accuracies to a log file
-                with open('./log.csv', 'w') as f:
+                with open(path.join(experiment_dir, 'log.csv'), 'w') as f:
                     f.write('step,val_loss,val_acc\n')
                     f.write('\n'.join(['{},{},{}'.format(s,l,a)
                         for s,l,a in zip(step_history, loss_history, acc_history)]))
@@ -118,7 +121,8 @@ def train(batch_size=64,
 
         if epoch % save_every == 0:
             torch.save(model.state_dict(),
-                       path.join('.', 'weights', 'model_{:04d}.mdl'.format(epoch)))
+                       path.join(experiment_dir, 'weights',
+                                 'model_{:04d}.mdl'.format(epoch)))
 
 
 if __name__ == '__main__':
@@ -126,9 +130,15 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', help='Configuration file')
     args = parser.parse_args()
 
+    experiment_name = '{0:%Y-%m-%d-%H-%M-%S}'.format(
+            datetime.now())
+
+    experiment_dir = path.join('.', 'experiments', experiment_name)
+    os.makedirs(path.join(experiment_dir, 'weights'))
+
     # Load configuration file if specified
     if args.config:
+        copyfile(args.config, path.join(experiment_dir, 'config.gin'))
         gin.parse_config_file(args.config)
 
-    os.makedirs('./weights', exist_ok=True)
-    train()
+    train(experiment_dir)
