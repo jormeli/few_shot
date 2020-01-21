@@ -60,6 +60,11 @@ def train(batch_size=64,
     loss_fn = nn.CrossEntropyLoss()
     optimizer = Adam(model.parameters(), lr=lr)
 
+    step_history = []
+    acc_history = []
+    loss_history = []
+
+    # Training loop
     for epoch in range(1, num_epochs + 1):
         print('Epoch {}/{}'.format(epoch, num_epochs))
 
@@ -92,10 +97,24 @@ def train(batch_size=64,
                     loss.backward()
                     optimizer.step()
 
-            print('{} loss: {:.05f}'.format(phase, avg_loss /
-                len(datasets[phase])))
-            print('{} accuracy: {:.05f}'.format(phase,
-                accuracy.double() / len(datasets[phase])))
+            epoch_loss = avg_loss / len(datasets[phase])
+            epoch_acc = accuracy.double() / len(datasets[phase])
+            print('{} loss: {:.05f}'.format(phase, epoch_loss))
+            print('{} accuracy: {:.05f}'.format(phase, epoch_acc))
+
+            if phase == 'val':
+                n_steps = epoch * len(datasets['train'])
+                step_history.append(n_steps)
+                acc_history.append(epoch_acc)
+                loss_history.append(epoch_loss)
+
+                # Write accuracies to a log file
+                with open('./log.csv', 'w') as f:
+                    f.write('step,val_loss,val_acc\n')
+                    f.write('\n'.join(['{},{},{}'.format(s,l,a)
+                        for s,l,a in zip(step_history, loss_history, acc_history)]))
+
+
 
         if epoch % save_every == 0:
             torch.save(model.state_dict(),
