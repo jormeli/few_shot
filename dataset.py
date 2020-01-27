@@ -1,4 +1,5 @@
 from os import path
+import random
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -20,6 +21,7 @@ class FashionDataset(Dataset):
         self._csv_file = csv_file
         self._root_dir = root_dir
         self._transform = transform
+        self._to_pil_image = transforms.ToPILImage()
 
         self._data = np.genfromtxt(csv_file, delimiter=',', skip_header=1,
                                    usecols=(0,4), dtype=None)
@@ -59,6 +61,8 @@ class FashionDataset(Dataset):
         label = self._labels.index(self._data[idx][1].decode('ascii'))
         label = np.array(label)
 
+        img = self._to_pil_image(img)
+
         sample = {'image': img, 'label': label}
 
         if self._transform is not None:
@@ -72,6 +76,7 @@ class ToTensor(object):
 
     def __call__(self, sample):
         image, label = sample['image'], sample['label']
+        image = np.array(image)
 
         image = image.transpose((2,0,1))
         return {'image': torch.from_numpy(image).float(),
@@ -92,9 +97,8 @@ class Normalize(object):
                 'label': sample['label']}
 
 
-class Rescale(object):
+class Resize(object):
     """Rescale the image in a sample to a given size.
-    Adapted from https://pytorch.org/tutorials/beginner/data_loading_tutorial.html#transforms
 
     Args:
         output_size (tuple or int): Desired output size. If tuple, output is
@@ -103,23 +107,22 @@ class Rescale(object):
     """
 
     def __init__(self, output_size):
-        assert isinstance(output_size, (int, tuple))
-        self.output_size = output_size
+        self.transform = transforms.Resize(output_size)
 
     def __call__(self, sample):
         image, label = sample['image'], sample['label']
+        return {'image': self.transform(image), 'label': label}
 
-        h, w = image.shape[:2]
-        if isinstance(self.output_size, int):
-            if h > w:
-                new_h, new_w = self.output_size * h / w, self.output_size
-            else:
-                new_h, new_w = self.output_size, self.output_size * w / h
-        else:
-            new_h, new_w = self.output_size
 
-        new_h, new_w = int(new_h), int(new_w)
+class RandomAugment(object):
+    def __init__(self, transforms, p=0.5):
+        self.p = p
+        self.transforms = transforms
 
-        img = transform.resize(image, (new_h, new_w))
+    def __call__(self, sample):
+        image, label = sample['image'], sample['label']
+        for t in self.transforms:
+            if random.random() < self.p:
+                image = t(image)
 
-        return {'image': img, 'label': label}
+        return {'image': image, 'label': label}
