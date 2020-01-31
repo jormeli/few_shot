@@ -3,7 +3,7 @@ include 'configs/transfer.gin'
 FashionDataset.csv_file = './train_other.csv'
 TransferNet.saved_model_path = 'specify saved model path'
 TransferNet.freeze_conv_layers = False
-torch.utils.data.DataLoader.batch_size = 32
+torch.utils.data.DataLoader.batch_size = 8
 torch.optim.Adam.lr = 1e-5
-main.num_epochs = 20
-main.save_every = 1
+main.num_epochs = 40
+main.save_every = 2
