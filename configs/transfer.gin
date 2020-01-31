@@ -1,0 +1,33 @@
+import gin.torch.external_configurables
+import external_configurables
+
+include 'configs/augmentations.gin'
+
+log.verbose = True
+
+load_dataset.val_split = 0.2
+load_dataset.dataset_cls = @FashionDataset
+FashionDataset.csv_file = './train_top20.csv'
+FashionDataset.classes_file = './classes.txt'
+FashionDataset.root_dir = './work/fdata/fashion-dataset'
+
+main.model_cls = @TransferNet
+TransferNet.num_outputs = 143
+
+main.optimizer_cls = @torch.optim.Adam
+torch.optim.Adam.lr = 1e-4
+
+main.dataloader_cls = @torch.utils.data.DataLoader
+torch.utils.data.DataLoader.batch_size = 64
+torch.utils.data.DataLoader.num_workers = 12
+torch.utils.data.DataLoader.shuffle = True
+
+main.loss_fn = @torch.nn.modules.loss.CrossEntropyLoss()
+main.num_epochs = 10
+main.save_every = 1
+main.metric_fns = [
+    @top_1/TopKAccuracy(),
+    @top_5/TopKAccuracy(),
+]
+top_1/TopKAccuracy.k = 1
+top_5/TopKAccuracy.k = 5

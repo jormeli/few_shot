@@ -1,0 +1,20 @@
+include 'configs/transfer.gin'
+
+load_dataset.augmentations = None
+FashionDataset.csv_file = './test.csv'
+
+TransferNet.saved_model_path = 'specify saved model path'
+
+main.phases = ['val']
+main.dump_predictions = True
+main.num_epochs = 1
+main.metric_fns = [
+    @top_1/TopKAccuracy(),
+    @top_5/TopKAccuracy(),
+    @PerClassAccuracy(),
+    @ConfusionMatrix(),
+]
+top_1/TopKAccuracy.k = 1
+top_5/TopKAccuracy.k = 5
+
+load_dataset.val_split = 1.0

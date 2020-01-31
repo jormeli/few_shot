@@ -1,8 +1,9 @@
-train.batch_size = 64
-train.num_epochs = 10
-train.lr = 1e-5
-train.val_split = 0.2
-train.data_root = "./work/fdata/fashion-dataset"
-train.csv_file = "./train_other.csv"
-train.freeze_conv_layers = True
-train.augment = True
+include 'configs/transfer.gin'
+
+FashionDataset.csv_file = './train_other.csv'
+TransferNet.saved_model_path = 'specify saved model path'
+TransferNet.freeze_conv_layers = False
+torch.utils.data.DataLoader.batch_size = 32
+torch.optim.Adam.lr = 1e-5
+main.num_epochs = 20
+main.save_every = 1

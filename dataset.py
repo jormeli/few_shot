@@ -1,11 +1,13 @@
 from os import path
 import random
+import gin
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 from skimage import io, transform
 
+@gin.configurable
 class FashionDataset(Dataset):
     """Fashion dataset class."""
 
