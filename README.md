@@ -63,6 +63,8 @@ The model at around ~700 optimization steps was chosen to avoid overfitting.
 
 
 ###### Evaluations on test set
+*Note that the class "Perfume and Body Mist" does not have any examples in the training set.*
+
 **Top-1 Accuracy:** 0.8771
 
 **Top-5 Accuracy:** 0.9566
@@ -99,6 +101,8 @@ The previous model was finetuned on the rare classes, i.e. the `train_other.csv`
 ![Confusion matrix](/images/cm_finetune.png?raw=true)
 
 ###### Evaluations on test set
+*Note that roughly 33.3% of datapoints in the test set are of classes which have no examples in training set.*
+
 **Top-1 Accuracy:** 0.4941
 
 **Top-5 Accuracy:** 0.6298
@@ -106,125 +110,106 @@ The previous model was finetuned on the rare classes, i.e. the `train_other.csv`
 | Class        | Top-1 Accuracy | Top-5 Accuracy |
 | -------------|---------------:|---------------:|
 |Accessory Gift Set|0.9897|1.0000|
-|Baby Dolls|0.0000|0.0000|
+|Baby Dolls\*|0.0000|0.0000|
 |Bangle|0.0870|0.8696|
 |Basketballs|0.0000|1.0000|
-|Bath Robe|0.0000|0.0000|
-|Beauty Accessory|0.0000|0.0000|
-|Blazers|0.0000|0.0000|
-|Body Lotion|0.0000|0.0000|
-|Body Wash and Scrub|0.0000|0.0000|
-|Booties|0.0000|0.0000|
-|Boxers|0.0000|0.0000|
+|Bath Robe\*|0.0000|0.0000|
+|Beauty Accessory\*|0.0000|0.0000|
+|Body Lotion\*|0.0000|0.0000|
+|Body Wash and Scrub\*|0.0000|0.0000|
 |Bra|0.9939|1.0000|
 |Bracelet|0.8571|1.0000|
 |Camisoles|0.0294|0.8529|
 |Capris|0.7885|0.9808|
 |Caps|0.9466|0.9847|
 |Churidar|0.5000|1.0000|
-|Clothing Set|0.0000|0.0000|
 |Clutches|0.9861|1.0000|
-|Compact|0.0000|0.0000|
-|Concealer|0.0000|0.0000|
+|Compact\*|0.0000|0.0000|
+|Concealer\*|0.0000|0.0000|
 |Cufflinks|1.0000|1.0000|
-|Cushion Covers|0.0000|0.0000|
-|Deodorant|0.0000|0.0000|
+|Deodorant\*|0.0000|0.0000|
 |Dresses|0.8495|0.9462|
 |Duffel Bag|0.6957|0.9130|
 |Dupatta|0.8750|1.0000|
 |Earrings|1.0000|1.0000|
-|Eye Cream|0.0000|0.0000|
-|Eyeshadow|0.0000|0.0000|
-|Face Moisturisers|0.0000|0.0000|
-|Face Scrub and Exfoliator|0.0000|0.0000|
-|Face Serum and Gel|0.0000|0.0000|
-|Face Wash and Cleanser|0.0000|0.0000|
+|Eye Cream\*|0.0000|0.0000|
+|Eyeshadow\*|0.0000|0.0000|
+|Face Moisturisers\*|0.0000|0.0000|
+|Face Scrub and Exfoliator\*|0.0000|0.0000|
+|Face Serum and Gel\*|0.0000|0.0000|
+|Face Wash and Cleanser\*|0.0000|0.0000|
 |Flats|0.9747|1.0000|
 |Footballs|1.0000|1.0000|
-|Foundation and Primer|0.0000|0.0000|
-|Fragrance Gift Set|0.0000|0.0000|
+|Foundation and Primer\*|0.0000|0.0000|
+|Fragrance Gift Set\*|0.0000|0.0000|
 |Free Gifts|0.0833|0.4167|
 |Gloves|0.6667|1.0000|
-|Hair Accessory|0.0000|0.0000|
-|Hair Colour|0.0000|0.0000|
-|Hat|0.0000|0.0000|
+|Hair Colour\*|0.0000|0.0000|
+|Hat\*|0.0000|0.0000|
 |Headband|0.0000|1.0000|
-|Highlighter and Blush|0.0000|0.0000|
+|Highlighter and Blush\*|0.0000|0.0000|
 |Innerwear Vests|0.0000|0.0000|
-|Ipad|0.0000|0.0000|
 |Jackets|0.6330|0.9255|
-|Jeggings|0.0000|0.0000|
 |Jewellery Set|1.0000|1.0000|
 |Jumpsuit|0.0000|1.0000|
-|Kajal and Eyeliner|0.0000|0.0000|
+|Kajal and Eyeliner\*|0.0000|0.0000|
 |Key chain|0.0000|0.0000|
 |Kurta Sets|1.0000|1.0000|
 |Kurtis|0.6818|0.9886|
 |Laptop Bag|0.7714|1.0000|
 |Leggings|0.6458|0.8958|
-|Lehenga Choli|0.0000|0.0000|
-|Lip Care|0.0000|0.0000|
-|Lip Gloss|0.0000|0.0000|
-|Lip Liner|0.0000|0.0000|
-|Lip Plumper|0.0000|0.0000|
-|Lipstick|0.0000|0.0000|
+|Lip Care\*|0.0000|0.0000|
+|Lip Gloss\*|0.0000|0.0000|
+|Lip Liner\*|0.0000|0.0000|
+|Lip Plumper\*|0.0000|0.0000|
+|Lipstick\*|0.0000|0.0000|
 |Lounge Pants|0.0000|0.5263|
 |Lounge Shorts|0.0000|0.7778|
-|Lounge Tshirts|0.0000|0.0000|
 |Makeup Remover|0.0000|0.6667|
-|Mascara|0.0000|0.0000|
-|Mask and Peel|0.0000|0.0000|
-|Mens Grooming Kit|0.0000|0.0000|
+|Mascara\*|0.0000|0.0000|
+|Mask and Peel\*|0.0000|0.0000|
+|Mens Grooming Kit\*|0.0000|0.0000|
 |Messenger Bag|0.5000|0.9583|
 |Mobile Pouch|0.3333|0.9444|
 |Mufflers|0.0690|0.9655|
-|Nail Essentials|0.0000|0.0000|
-|Nail Polish|0.0000|0.0000|
+|Nail Essentials\*|0.0000|0.0000|
+|Nail Polish\*|0.0000|0.0000|
 |Necklace and Chains|0.9250|1.0000|
-|Nehru Jackets|0.0000|0.0000|
 |Nightdress|0.1688|0.8438|
 |Night suits|0.3143|0.8143|
-|Patiala|0.0000|0.0000|
 |Pendant|0.8519|0.9630|
 |Rain Jacket|1.0000|1.0000|
 |Rain Trousers|0.0000|0.0000|
 |Ring|0.9483|1.0000|
 |Robe|0.0000|0.0000|
-|Rompers|0.0000|0.0000|
 |Rucksacks|0.8750|1.0000|
-|Salwar|0.0000|0.0000|
-|Salwar and Dupatta|0.0000|0.0000|
-|Sarees|0.0000|0.0000|
 |Scarves|0.7174|0.7826|
 |Shapewear|1.0000|1.0000|
 |Shoe Accessories|0.0000|0.0526|
-|Shoe Laces|0.0000|0.0000|
+|Shoe Laces\*|0.0000|0.0000|
 |Shorts|0.8436|0.9526|
 |Shrug|0.0000|1.0000|
 |Skirts|0.6981|0.8302|
 |Sports Sandals|0.7667|1.0000|
 |Stockings|0.1765|0.7059|
 |Stoles|0.4000|0.9000|
-|Suits|0.0000|0.0000|
-|Sunscreen|0.0000|0.0000|
-|Suspenders|0.0000|0.0000|
+|Sunscreen\*|0.0000|0.0000|
 |Sweaters|0.6667|0.9412|
 |Sweatshirts|0.6498|0.9689|
 |Swimwear|0.0000|0.5000|
-|Tablet Sleeve|0.0000|0.0000|
 |Ties|0.9880|0.9880|
-|Ties and Cufflinks|0.0000|0.0000|
+|Ties and Cufflinks\*|0.0000|0.0000|
 |Tights|0.0000|1.0000|
-|Toner|0.0000|0.0000|
+|Toner\*|0.0000|0.0000|
 |Track Pants|0.8902|0.9595|
 |Tracksuits|0.7000|1.0000|
 |Travel Accessory|0.1000|0.7000|
-|Trolley Bag|0.0000|0.0000|
 |Trousers|0.9157|0.9885|
-|Trunk|0.0000|0.0000|
 |Tunics|0.4000|0.9778|
 |Umbrellas|0.0000|0.0000|
 |Waistcoat|0.1667|1.0000|
 |Waist Pouch|0.0000|1.0000|
 |Water Bottle|1.0000|1.0000|
 |Wristbands|0.2500|1.0000|
+
+*\*: no examples of these classes in training set*
