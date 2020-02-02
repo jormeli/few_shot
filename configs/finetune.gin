@@ -6,4 +6,6 @@ TransferNet.freeze_conv_layers = False
 torch.utils.data.DataLoader.batch_size = 8
 torch.optim.Adam.lr = 1e-5
 main.num_epochs = 40
-main.save_every = 2
+main.save_every = 1
+main.loss_fn = @torch.nn.modules.loss.CrossEntropyLoss()
+torch.nn.modules.loss.CrossEntropyLoss.weight = %RARE_CLASS_WEIGHTS

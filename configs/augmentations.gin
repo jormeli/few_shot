@@ -8,13 +8,13 @@ load_dataset.augmentations = [
     @RandomVerticalFlip(),
     @RandomRotation(),
 ]
-load_dataset.augment_prob = 0.5
+load_dataset.augment_prob = 0.8
 
-ColorJitter.brightness = 0.3
-ColorJitter.contrast = 0.3
-ColorJitter.saturation = 0.3
-ColorJitter.hue = 0.3
+ColorJitter.brightness = 0.8
+ColorJitter.contrast = 0.8
+ColorJitter.saturation = 0.8
+ColorJitter.hue = 0.5
 Grayscale.num_output_channels = 3
-RandomHorizontalFlip.p = 0.8
-RandomVerticalFlip.p = 0.8
+RandomHorizontalFlip.p = 0.6
+RandomVerticalFlip.p = 0.6
 RandomRotation.degrees = 90.0

@@ -15,15 +15,16 @@ main.model_cls = @TransferNet
 TransferNet.num_outputs = 143
 
 main.optimizer_cls = @torch.optim.Adam
-torch.optim.Adam.lr = 1e-4
+torch.optim.Adam.lr = 1e-5
 
 main.dataloader_cls = @torch.utils.data.DataLoader
-torch.utils.data.DataLoader.batch_size = 64
+torch.utils.data.DataLoader.batch_size = 32
 torch.utils.data.DataLoader.num_workers = 12
 torch.utils.data.DataLoader.shuffle = True
 
 main.loss_fn = @torch.nn.modules.loss.CrossEntropyLoss()
-main.num_epochs = 10
+torch.nn.modules.loss.CrossEntropyLoss.weight = %CLASS_WEIGHTS
+main.num_epochs = 30
 main.save_every = 1
 main.metric_fns = [
     @top_1/TopKAccuracy(),
