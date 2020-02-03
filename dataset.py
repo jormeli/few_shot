@@ -26,7 +26,8 @@ class FashionDataset(Dataset):
         self._to_pil_image = transforms.ToPILImage()
 
         self._data = np.genfromtxt(csv_file, delimiter=',', skip_header=1,
-                                   usecols=(0,4), dtype=None)
+                                   usecols=(0,4), dtype=None, names=['image', 'label'],
+                                   encoding=None)
 
         # Some images are not found in the dataset for some reason,
         # so remove corresponding rows
@@ -47,73 +48,68 @@ class FashionDataset(Dataset):
     def num_classes(self):
         return len(self._labels)
 
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-
+    def load_image(self, image_id):
         img_file = path.join(self._root_dir,
                              'images',
-                             '{}.jpg'.format(self._data[idx][0]))
+                             '{}.jpg'.format(image_id))
         img = io.imread(img_file)
 
         # Some images are greyscale
         if len(img.shape) == 2:
             img = np.repeat(img[:, :, None], 3, axis=-1)
 
-        label = self._labels.index(self._data[idx][1].decode('ascii'))
+        img = self._to_pil_image(img)
+        if self._transform is not None:
+            img = self._transform(img)
+
+        return img
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        img = self.load_image(self._data['image'][idx])
+        label = self._labels.index(self._data[idx][1])
         label = np.array(label)
 
-        img = self._to_pil_image(img)
-
-        sample = {'image': img, 'label': label}
-
-        if self._transform is not None:
-            sample = self._transform(sample)
+        sample = {'image': img, 'label': torch.from_numpy(label)}
 
         return sample
 
 
-class ToTensor(object):
-    """Convert sample to tensors."""
+@gin.configurable
+class TripletFashionDataset(FashionDataset):
+    def __init__(self, csv_file, classes_file, root_dir, transform=None):
+        super().__init__(csv_file, classes_file, root_dir, transform)
 
-    def __call__(self, sample):
-        image, label = sample['image'], sample['label']
-        image = np.array(image)
+        c = 0
+        for label in self._labels:
+            idxs = self._data['label'] == label
+            if idxs.sum() < 4 and idxs.sum() > 0:
+                c += 1
+                self._data = self._data[~idxs]
 
-        image = image.transpose((2,0,1))
-        return {'image': torch.from_numpy(image).float(),
+        print(c)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        label = self._data['label'][idx]
+        pos_idxs = self._data['label'] == label
+        pos_idxs[idx] = False
+        pos_img_id = np.random.choice(self._data['image'][pos_idxs])
+        neg_img_id = np.random.choice(self._data['image'][~pos_idxs])
+
+        anchor_img = self.load_image(self._data['image'][idx])
+        pos_img = self.load_image(pos_img_id)
+        neg_img = self.load_image(neg_img_id)
+
+        img = torch.cat([anchor_img, pos_img, neg_img], 0)
+
+        label = np.array(self._labels.index(label))
+        return {'image': img,
                 'label': torch.from_numpy(label)}
-
-
-class Normalize(object):
-    """Normalize image with predefined mean and std."""
-
-    def __init__(self, mean, std):
-        self._norm = transforms.Normalize(
-            mean=mean,
-            std=std
-        )
-
-    def __call__(self, sample):
-        return {'image': self._norm(sample['image']),
-                'label': sample['label']}
-
-
-class Resize(object):
-    """Rescale the image in a sample to a given size.
-
-    Args:
-        output_size (tuple or int): Desired output size. If tuple, output is
-            matched to output_size. If int, smaller of image edges is matched
-            to output_size keeping aspect ratio the same.
-    """
-
-    def __init__(self, output_size):
-        self.transform = transforms.Resize(output_size)
-
-    def __call__(self, sample):
-        image, label = sample['image'], sample['label']
-        return {'image': self.transform(image), 'label': label}
 
 
 class RandomAugment(object):
@@ -122,9 +118,8 @@ class RandomAugment(object):
         self.transforms = transforms
 
     def __call__(self, sample):
-        image, label = sample['image'], sample['label']
         for t in self.transforms:
             if random.random() < self.p:
-                image = t(image)
+                sample = t(sample)
 
-        return {'image': image, 'label': label}
+        return sample

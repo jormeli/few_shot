@@ -16,9 +16,10 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, models
 from tqdm import tqdm
 
-from dataset import FashionDataset, Resize, ToTensor, Normalize, RandomAugment
+from dataset import FashionDataset, TripletFashionDataset, RandomAugment
+from losses import triplet_loss
 from metrics import TopKAccuracy, ConfusionMatrix, PerClassAccuracy
-from networks import TransferNet
+from networks import TransferNet, TripletNet
 from utils import log
 
 
@@ -32,9 +33,9 @@ def load_dataset(dataset_cls, val_split=0.2, augmentations=None,
 
     transform = transforms.Compose([
                                     RandomAugment(augmentations, p=augment_prob),
-                                    Resize((224, 224)),
-                                    ToTensor(),
-                                    Normalize(
+                                    transforms.Resize((224, 224)),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize(
                                         # Mean and STD for pretrained model
                                         mean=[0.485, 0.456, 0.406],
                                         std=[0.229, 0.224, 0.225]

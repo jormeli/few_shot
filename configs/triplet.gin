@@ -1,0 +1,29 @@
+import gin.torch.external_configurables
+import external_configurables
+
+include 'configs/augmentations.gin'
+
+log.verbose = True
+
+load_dataset.val_split = 0.2
+load_dataset.dataset_cls = @TripletFashionDataset
+TripletFashionDataset.csv_file = './train_top20.csv'
+TripletFashionDataset.classes_file = './classes.txt'
+TripletFashionDataset.root_dir = './work/fdata/fashion-dataset'
+
+main.model_cls = @TripletNet
+TripletNet.embedding_dim = 64
+
+main.optimizer_cls = @torch.optim.Adam
+torch.optim.Adam.lr = 1e-5
+
+main.dataloader_cls = @torch.utils.data.DataLoader
+torch.utils.data.DataLoader.batch_size = 32
+torch.utils.data.DataLoader.num_workers = 12
+torch.utils.data.DataLoader.shuffle = True
+
+main.loss_fn = @triplet_loss
+triplet_loss.margin = 0.5
+main.num_epochs = 30
+main.save_every = 1
+main.metric_fns = []
