@@ -49,11 +49,15 @@ The configuration options for the dataset root folder and CSV file should be set
 
 ### Results
 
-#### Transfer learning
+### Transfer learning
 
-##### Top-20 classes
+#### Top-20 classes
 
 A ResNet-50 model pre-trained with ImageNet was used to learn the classification of top-20 classes. The specific hyperparameters can be seen in the [configuration file](/configs/transfer.gin).
+
+Run with:
+
+`$ python experiment.py -c configs/transfer.gin`
 
 ![Training progress](/images/train_val_top20.png?raw=true)
 
@@ -62,7 +66,11 @@ The model at around ~700 optimization steps was chosen to avoid overfitting.
 ![Confusion matrix](/images/cm_top20.png?raw=true)
 
 
-###### Evaluations on test set
+#### Evaluations on test set
+Run with:
+
+`$ python experiment.py -c configs/transfer_evaluate.gin -p "TransferNet.saved_model_path='saved/model/path.mdl'"`
+
 *Note that the class "Perfume and Body Mist" does not have any examples in the training set.*
 
 **Top-1 Accuracy:** 0.8771
@@ -92,15 +100,24 @@ The model at around ~700 optimization steps was chosen to avoid overfitting.
 |Shirts|0.9919|1.0000|
 |Tshirts|0.9509|0.9993|
 
-##### Rare classes
+#### Rare classes
 
 The previous model was finetuned on the rare classes, i.e. the `train_other.csv` dataset. The hyperparameters can be found in the [finetune.gin](/configs/finetune.gin) configuration file.
+
+Run with:
+
+`$ python experiment.py -c configs/finetune.gin -p "TransferNet.saved_model_path='saved/model/path.mdl'"`
 
 ![Training progress](/images/train_val_finetune.png?raw=true)
 
 ![Confusion matrix](/images/cm_finetune.png?raw=true)
 
-###### Evaluations on test set
+#### Evaluations on test set
+
+Run with:
+
+`$ python experiment.py -c configs/transfer_evaluate.py -p "TransferNet.saved_model_path='saved/model/path.mdl'"`
+
 *Note that roughly 33.3% of datapoints in the test set are of classes which have no examples in training set.*
 
 **Top-1 Accuracy:** 0.4941
@@ -213,3 +230,43 @@ The previous model was finetuned on the rare classes, i.e. the `train_other.csv`
 |Wristbands|0.2500|1.0000|
 
 *\*: no examples of these classes in training set*
+
+### Image similarity embedding with triplet loss
+
+A pre-trained Resnet-50 was trained to embed the product images in to a vector space such that visually similar images are closer to each other, and vice versa.
+This is done using a so called [triplet loss](https://arxiv.org/abs/1503.03832), which takes as input the network outputs for three sample images from the dataset:
+ - an *anchor* image
+ - a random *positive* image which belongs to the same class as the anchor
+ - a random *negative* image which belongs to a different class
+
+The loss function then encourages the network to keep the distance between the embeddings of the anchor and the positive sample smaller than between the anchor and the negative sample. The loss is defined as
+
+**L(a,p,n) = max(d(f(a),f(p)) - d(f(a),f(n)) + margin, 0)**
+
+where **f(x)** is the embedding function learned by the model, and **d(x,y)** is some distance metric on the embedding space. Here L2-distance was used.
+A simple non-parametric k-nearest neighbors algorithm is then used to classify the embeddings. The intuition is that KNN should perform well with unbalanced classes, given that the embedding is sufficient.
+
+The datasets used are the same as above, with the exception of classes with fewer than 4 samples being removed.
+
+Run with:
+`$ python experiment.py -c configs/triplet.gin`
+
+#### Evaluations on test set
+
+![t-sne projection](/images/tsne.png?raw=true)
+
+*[Click here for a higher quality interactive plot](https://users.aalto.fi/~tellaa2/fashion_scatter.html)*
+
+The plot above shows a t-sne projection of the learned embeddings evaluated on the test set. Despite some overlapping and outliers, the data points are relatively distinctly clustered, and similar clusters such as different kinds of shoes and trousers are close to each other.
+
+
+**Accuracy (top-20 classes):** 0.8672
+
+**Accuracy (all classes):** 0.7466
+
+**Accuracy (rare classes):** 0.4916
+
+
+### Possible improvements
+ - improve embedding accuracy:
+     - use smarter sampling method for the negative samples in triplet loss
